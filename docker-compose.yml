@@ -1,0 +1,38 @@
+version: '3.3'
+
+volumes:
+  data:
+services:
+  web:
+    image: nginx:latest
+    container_name: nginx-minhapasta
+    restart: always
+    ports: 
+      - 3000:80
+    volumes:
+      - .:/var/www/minhapasta
+      - ./docker_config/nginx/app.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - php
+  php:
+    build:
+      dockerfile: ./docker_config/php/php7-dockerfile
+      context: ./
+      args:
+        - "UID=$UID"
+        - "GID=$GID"
+        - "USER=$USER"
+    image: php7-dockerfile
+    container_name: php-minhapasta
+    volumes:
+      - .:/var/www/minhapasta
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3307:3306"
+    volumes:
+      - data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=minhapasta
